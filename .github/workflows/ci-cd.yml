@@ -48,7 +48,7 @@ jobs:
 
       - name: Subir reporte de cobertura
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: coverage/
@@ -79,7 +79,7 @@ jobs:
           echo "La aplicación no arrancó" && exit 1
       - name: Empaquetar artefacto
         run: tar -czf donaciones-api.tar.gz src public package.json package-lock.json
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: donaciones-api-build
           path: donaciones-api.tar.gz
@@ -98,8 +98,9 @@ jobs:
       - run: npm ci --omit=dev
       - name: Levantar la aplicación
         run: |
-          NODE_ENV=production JWT_SECRET=zap-scan PORT=3000 node src/server.js &
-          for i in $(seq 1 20); do curl -fs http://localhost:3000/health && break; sleep 1; done
+          NODE_ENV=production JWT_SECRET=zap-scan PORT=3000 nohup node src/server.js > app.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs http://localhost:3000/health && exit 0; sleep 1; done
+          echo "::error::La aplicación no respondió"; cat app.log; exit 1
 
       - name: ZAP Baseline (escaneo pasivo)
         uses: zaproxy/action-baseline@v0.14.0
@@ -108,7 +109,7 @@ jobs:
           allow_issue_writing: false
           fail_action: false
           artifact_name: zap-baseline-report
-          cmd_options: '-a'
+          cmd_options: '-a --autooff'
 
       - name: "ZAP API Scan (escaneo activo - XSS, SQLi, etc.)"
         uses: zaproxy/action-api-scan@v0.9.0
