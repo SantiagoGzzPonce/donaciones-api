@@ -10,7 +10,7 @@
     "test:ci": "jest --coverage --ci --runInBand"
   },
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "license": "MIT",
   "jest": {
