@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de donantes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Registro de donantes</h1>
+    <p>Plataforma de donación de alimentos y recursos</p>
+    <div id="session" hidden><span id="whoami"></span> <button id="logout" type="button">Cerrar sesión</button></div>
+  </header>
+  <main>
+    <section id="auth-section" class="card">
+      <h2>Acceso</h2>
+      <form id="login-form">
+        <label>Correo <input name="email" type="email" required autocomplete="username"></label>
+        <label>Contraseña <input name="password" type="password" required autocomplete="current-password"></label>
+        <button type="submit">Iniciar sesión</button>
+      </form>
+      <details>
+        <summary>¿No tienes cuenta? Regístrate</summary>
+        <form id="register-form">
+          <label>Nombre <input name="name" required></label>
+          <label>Correo <input name="email" type="email" required></label>
+          <label>Contraseña <input name="password" type="password" required minlength="8" autocomplete="new-password"></label>
+          <button type="submit">Crear cuenta</button>
+        </form>
+      </details>
+    </section>
+
+    <section id="donor-section" class="card" hidden>
+      <h2>Nuevo donante</h2>
+      <form id="donor-form">
+        <label>Nombre <input name="name" required></label>
+        <label>Correo <input name="email" type="email" required></label>
+        <label>Teléfono <input name="phone"></label>
+        <label>Tipo
+          <select name="type"><option value="persona">Persona</option><option value="empresa">Empresa</option></select>
+        </label>
+        <label>Dirección <input name="address"></label>
+        <label>Notas <textarea name="notes" rows="2"></textarea></label>
+        <button type="submit">Guardar</button>
+      </form>
+      <h2>Donantes registrados</h2>
+      <input id="search" type="search" placeholder="Buscar por nombre o correo">
+      <table>
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Tipo</th><th>Teléfono</th><th></th></tr></thead>
+        <tbody id="donor-rows"></tbody>
+      </table>
+    </section>
+    <p id="message" role="status"></p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
