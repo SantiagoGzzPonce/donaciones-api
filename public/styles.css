@@ -15,3 +15,4 @@ table { width: 100%; border-collapse: collapse; margin-top: .75rem; display: blo
 th, td { text-align: left; padding: .45rem; border-bottom: 1px solid #e3e8e5; white-space: nowrap; }
 #search { width: 100%; }
 #message { font-weight: 600; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

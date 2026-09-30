@@ -3,7 +3,7 @@ services:
     name: donaciones-api
     runtime: node
     plan: free
-    buildCommand: npm ci --omit=dev
+    buildCommand: npm ci --omit=dev --ignore-scripts
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: false   # solo despliega cuando el pipeline lo ordena

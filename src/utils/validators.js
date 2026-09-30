@@ -1,6 +1,8 @@
 'use strict';
 
-const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/;
+// Etiquetas de dominio sin puntos: no hay cuantificadores que se traslapen (sin backtracking exponencial).
+const EMAIL_RE = /^[^\s@<>]+@(?:[^\s@<>.]+\.)+[^\s@<>.]{2,}$/;
+const isEmail = (v) => typeof v === 'string' && v.trim().length <= 254 && EMAIL_RE.test(v.trim());
 const PHONE_RE = /^\+?[0-9\s-]{7,20}$/;
 const NAME_RE = /^[\p{L}\p{N} .,'&-]{2,100}$/u;
 const SAFE_TEXT_RE = /^[^<>]*$/;
@@ -24,7 +26,7 @@ function validateRegister(body = {}) {
   if (!isString(body.name) || !NAME_RE.test(body.name.trim())) {
     errors.push('Nombre inválido (2-100 caracteres, sin símbolos especiales)');
   }
-  if (!isString(body.email) || !EMAIL_RE.test(body.email.trim())) {
+  if (!isEmail(body.email)) {
     errors.push('Correo electrónico inválido');
   }
   return errors.concat(validatePassword(body.password));
@@ -45,7 +47,7 @@ function validateDonor(body = {}, { partial = false } = {}) {
     if (!isString(body.name) || !NAME_RE.test(body.name.trim())) errors.push('Nombre del donante inválido');
   }
   if (!partial || has('email')) {
-    if (!isString(body.email) || !EMAIL_RE.test(body.email.trim())) errors.push('Correo del donante inválido');
+    if (!isEmail(body.email)) errors.push('Correo del donante inválido');
   }
   if (!partial || has('type')) {
     if (!DONOR_TYPES.includes(body.type)) errors.push('El tipo debe ser "persona" o "empresa"');

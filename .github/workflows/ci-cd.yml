@@ -32,7 +32,7 @@ jobs:
           cache: npm
 
       - name: Instalar dependencias
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Auditoría de dependencias (npm audit)
         run: npm audit --omit=dev --audit-level=high
@@ -55,7 +55,7 @@ jobs:
 
       - name: Análisis SonarCloud
         if: ${{ env.SONAR_TOKEN != '' }}
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703 # v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -71,10 +71,12 @@ jobs:
           node-version: 22
           cache: npm
       - name: Instalar solo dependencias de producción
-        run: npm ci --omit=dev
+        run: npm ci --omit=dev --ignore-scripts
       - name: Verificar que la app arranca (smoke test)
         run: |
-          NODE_ENV=production JWT_SECRET=ci-smoke ADMIN_PASSWORD=CiSmoke123 PORT=3000 node src/server.js &
+          ADMIN_PASSWORD="Ci$(openssl rand -hex 12)9"
+          export ADMIN_PASSWORD
+          NODE_ENV=production JWT_SECRET="$(openssl rand -hex 32)" PORT=3000 node src/server.js &
           for i in $(seq 1 20); do curl -fs http://localhost:3000/health && exit 0; sleep 1; done
           echo "La aplicación no arrancó" && exit 1
       - name: Empaquetar artefacto
@@ -95,15 +97,19 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci --omit=dev
+      - run: npm ci --omit=dev --ignore-scripts
       - name: Levantar la aplicación
         run: |
-          NODE_ENV=production JWT_SECRET=zap-scan ADMIN_PASSWORD=ZapScan123 PORT=3000 nohup node src/server.js > app.log 2>&1 &
+          ADMIN_PASSWORD="Zap$(openssl rand -hex 12)9"
+          echo "::add-mask::$ADMIN_PASSWORD"
+          echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" >> "$GITHUB_ENV"
+          export ADMIN_PASSWORD
+          NODE_ENV=production JWT_SECRET="$(openssl rand -hex 32)" PORT=3000 nohup node src/server.js > app.log 2>&1 &
           for i in $(seq 1 30); do curl -fs http://localhost:3000/health && exit 0; sleep 1; done
           echo "::error::La aplicación no respondió"; cat app.log; exit 1
 
       - name: ZAP Baseline (escaneo pasivo)
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@7c4deb10e6261301961c86d65d54a516394f9aed # v0.14.0
         with:
           target: http://localhost:3000
           allow_issue_writing: false
@@ -116,14 +122,14 @@ jobs:
         run: |
           TOKEN=$(curl -fsS -X POST http://localhost:3000/api/auth/login \
             -H 'Content-Type: application/json' \
-            -d '{"email":"admin@donaciones.local","password":"ZapScan123"}' | jq -r .token)
+            -d "$(jq -n --arg p "$ADMIN_PASSWORD" '{email:"admin@donaciones.local",password:$p}')" | jq -r .token)
           echo "::add-mask::$TOKEN"
           echo "ZAP_AUTH_HEADER=Authorization" >> "$GITHUB_ENV"
           echo "ZAP_AUTH_HEADER_VALUE=Bearer $TOKEN" >> "$GITHUB_ENV"
           echo "ZAP_AUTH_HEADER_SITE=localhost" >> "$GITHUB_ENV"
 
       - name: "ZAP API Scan (escaneo activo - XSS, SQLi, etc.)"
-        uses: zaproxy/action-api-scan@v0.9.0
+        uses: zaproxy/action-api-scan@77dfa9a647bb0f583e39d4df8531634d6ddd8df4 # v0.9.0
         with:
           target: docs/openapi.yaml
           format: openapi

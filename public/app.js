@@ -30,7 +30,12 @@
     $('donor-section').hidden = !t;
     $('session').hidden = !t;
     $('whoami').textContent = user ? user.name + ' (' + user.role + ')' : '';
-    if (t) loadDonors();
+    if (t) refresh();
+  }
+
+  // Carga la lista y muestra cualquier error en pantalla (promesa siempre manejada).
+  function refresh() {
+    loadDonors().catch((err) => show(err.message, true));
   }
 
   async function loadDonors() {
@@ -48,7 +53,7 @@
         const btn = document.createElement('button');
         btn.className = 'danger'; btn.type = 'button'; btn.textContent = 'Eliminar';
         btn.addEventListener('click', async () => {
-          try { await api('/api/donors/' + d.id, { method: 'DELETE' }); show('Donante eliminado'); loadDonors(); }
+          try { await api('/api/donors/' + d.id, { method: 'DELETE' }); show('Donante eliminado'); await loadDonors(); }
           catch (e) { show(e.message, true); }
         });
         td.appendChild(btn);
@@ -72,7 +77,7 @@
 
   $('donor-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    try { await api('/api/donors', { method: 'POST', body: JSON.stringify(formData(e.target)) }); e.target.reset(); show('Donante registrado'); loadDonors(); }
+    try { await api('/api/donors', { method: 'POST', body: JSON.stringify(formData(e.target)) }); e.target.reset(); show('Donante registrado'); await loadDonors(); }
     catch (err) { show(err.message, true); }
   });
 

@@ -1,9 +1,13 @@
+const crypto = require('crypto');
 const request = require('supertest');
 const app = require('../src/app');
 const store = require('../src/data/store');
 const userService = require('../src/services/userService');
 
-const ADMIN = { name: 'Admin', email: 'admin@test.com', password: 'Admin123!' };
+// Contraseñas generadas en cada ejecución: no hay credenciales fijas en el código.
+const randomSecret = (prefix) => `${prefix}${crypto.randomBytes(8).toString('hex')}9`;
+const USER_SECRET = randomSecret('Us');
+const ADMIN = { name: 'Admin', email: 'admin@test.com', password: randomSecret('Ad') };
 
 async function resetAndSeed() {
   store.reset();
@@ -17,7 +21,7 @@ async function login(email, password) {
 
 async function registerUser(email = 'user@test.com', name = 'Usuario Prueba') {
   const res = await request(app).post('/api/auth/register')
-    .send({ name, email, password: 'Usuario123' });
+    .send({ name, email, password: USER_SECRET });
   return { token: res.body.token, user: res.body.user };
 }
 
