@@ -110,7 +110,7 @@ jobs:
           artifact_name: zap-baseline-report
           cmd_options: '-a'
 
-      - name: ZAP API Scan (escaneo activo: XSS, SQLi, etc.)
+      - name: "ZAP API Scan (escaneo activo - XSS, SQLi, etc.)"
         uses: zaproxy/action-api-scan@v0.9.0
         with:
           target: docs/openapi.yaml
