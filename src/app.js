@@ -20,13 +20,19 @@ app.use(helmet({
       scriptSrc: ["'self'"],
       styleSrc: ["'self'"],
       imgSrc: ["'self'", 'data:'],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'"],
       formAction: ["'self'"],
       frameAncestors: ["'none'"]
     }
   },
   crossOriginEmbedderPolicy: true
 }));
-app.use(cors({ origin: config.corsOrigin }));
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+  next();
+});
+if (config.corsOrigins.length) app.use(cors({ origin: config.corsOrigins }));
 app.use(express.json({ limit: '10kb' }));
 
 const authLimiter = rateLimit({
@@ -36,6 +42,11 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   skip: () => config.env === 'test',
   message: { error: 'Demasiados intentos, intenta más tarde' }
+});
+
+app.use(['/api', '/health'], (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
 });
 
 app.get('/health', (req, res) => res.json({ status: 'ok', env: config.env }));

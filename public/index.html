@@ -15,14 +15,14 @@
   <main>
     <section id="auth-section" class="card">
       <h2>Acceso</h2>
-      <form id="login-form">
+      <form id="login-form" method="post" action="/">
         <label>Correo <input name="email" type="email" required autocomplete="username"></label>
         <label>Contraseña <input name="password" type="password" required autocomplete="current-password"></label>
         <button type="submit">Iniciar sesión</button>
       </form>
       <details>
         <summary>¿No tienes cuenta? Regístrate</summary>
-        <form id="register-form">
+        <form id="register-form" method="post" action="/">
           <label>Nombre <input name="name" required></label>
           <label>Correo <input name="email" type="email" required></label>
           <label>Contraseña <input name="password" type="password" required minlength="8" autocomplete="new-password"></label>
@@ -33,7 +33,7 @@
 
     <section id="donor-section" class="card" hidden>
       <h2>Nuevo donante</h2>
-      <form id="donor-form">
+      <form id="donor-form" method="post" action="/">
         <label>Nombre <input name="name" required></label>
         <label>Correo <input name="email" type="email" required></label>
         <label>Teléfono <input name="phone"></label>

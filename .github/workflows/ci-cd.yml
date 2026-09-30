@@ -74,7 +74,7 @@ jobs:
         run: npm ci --omit=dev
       - name: Verificar que la app arranca (smoke test)
         run: |
-          NODE_ENV=production JWT_SECRET=ci-smoke PORT=3000 node src/server.js &
+          NODE_ENV=production JWT_SECRET=ci-smoke ADMIN_PASSWORD=CiSmoke123 PORT=3000 node src/server.js &
           for i in $(seq 1 20); do curl -fs http://localhost:3000/health && exit 0; sleep 1; done
           echo "La aplicación no arrancó" && exit 1
       - name: Empaquetar artefacto
@@ -98,7 +98,7 @@ jobs:
       - run: npm ci --omit=dev
       - name: Levantar la aplicación
         run: |
-          NODE_ENV=production JWT_SECRET=zap-scan PORT=3000 nohup node src/server.js > app.log 2>&1 &
+          NODE_ENV=production JWT_SECRET=zap-scan ADMIN_PASSWORD=ZapScan123 PORT=3000 nohup node src/server.js > app.log 2>&1 &
           for i in $(seq 1 30); do curl -fs http://localhost:3000/health && exit 0; sleep 1; done
           echo "::error::La aplicación no respondió"; cat app.log; exit 1
 
@@ -110,6 +110,16 @@ jobs:
           fail_action: false
           artifact_name: zap-baseline-report
           cmd_options: '-a --autooff'
+
+      - name: Obtener token para escaneo autenticado
+        run: |
+          TOKEN=$(curl -fsS -X POST http://localhost:3000/api/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"admin@donaciones.local","password":"ZapScan123"}' | jq -r .token)
+          echo "::add-mask::$TOKEN"
+          echo "ZAP_AUTH_HEADER=Authorization" >> "$GITHUB_ENV"
+          echo "ZAP_AUTH_HEADER_VALUE=Bearer $TOKEN" >> "$GITHUB_ENV"
+          echo "ZAP_AUTH_HEADER_SITE=localhost" >> "$GITHUB_ENV"
 
       - name: "ZAP API Scan (escaneo activo - XSS, SQLi, etc.)"
         uses: zaproxy/action-api-scan@v0.9.0

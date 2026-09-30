@@ -1,5 +1,5 @@
 'use strict';
-// Todo el contenido dinámico se inserta con textContent para evitar XSS.
+// El contenido dinámico se inserta con textContent para evitar XSS.
 (function () {
   const $ = (id) => document.getElementById(id);
   let token = sessionStorage.getItem('token');

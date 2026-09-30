@@ -5,7 +5,7 @@ Este repositorio contiene el **módulo de registro de personas donantes** con:
 
 - Autenticación con **JWT** (HS256, expiración 1 h) y contraseñas cifradas con **bcrypt**.
 - **Roles** `admin` y `usuario` con control de acceso por recurso.
-- **Pruebas unitarias e integración con Jest** (63 pruebas, cobertura > 95 %, umbral mínimo 80 % obligatorio).
+- **Pruebas unitarias e integración con Jest** (72 pruebas, cobertura > 95 %, umbral mínimo 80 % obligatorio).
 - **Pipeline CI/CD con GitHub Actions**: pruebas → construcción → escaneo OWASP ZAP → despliegue automático en Render.
 - **Análisis de calidad con SonarCloud**.
 
@@ -43,5 +43,6 @@ Especificación completa: `docs/openapi.yaml`.
 | Autenticación rota | bcrypt, JWT con algoritmo fijo, expiración, rate limit en login, mensaje genérico de error |
 | Control de acceso roto / IDOR | Middleware `authorize`, verificación de dueño del recurso, rol leído del servidor |
 | Escalamiento de privilegios | El registro ignora el campo `role` |
-| Configuración insegura | helmet (HSTS, nosniff, frame-ancestors), sin `X-Powered-By`, errores 500 sin detalle, límite de 10 kb por petición |
+| Configuración insegura | helmet (HSTS, nosniff, frame-ancestors, CSP sin comodines), Permissions-Policy, CORS cerrado por defecto, `Cache-Control: no-store` en la API, sin `X-Powered-By`, errores 500 sin detalle, límite de 10 kb por petición |
+| Credenciales por defecto | En producción la app no arranca sin `JWT_SECRET` y `ADMIN_PASSWORD` |
 | Componentes vulnerables | `npm audit` en el pipeline |
