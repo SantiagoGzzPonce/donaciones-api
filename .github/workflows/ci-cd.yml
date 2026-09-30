@@ -109,6 +109,7 @@ jobs:
           allow_issue_writing: false
           fail_action: false
           artifact_name: zap-baseline-report
+          rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a --autooff'
 
       - name: Obtener token para escaneo autenticado
@@ -129,6 +130,7 @@ jobs:
           allow_issue_writing: false
           fail_action: false
           artifact_name: zap-api-report
+          rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a -O http://localhost:3000'
 
   # ---------- 4. Despliegue al entorno de pruebas ----------

@@ -109,3 +109,17 @@ describe('Configuración de producción', () => {
     expect(run({ JWT_SECRET: 'x', ADMIN_PASSWORD: 'Seguro123' })).not.toThrow();
   });
 });
+
+describe('Protección contra CSRF por diseño', () => {
+  it('rechaza cuerpos de formulario HTML (solo acepta JSON)', async () => {
+    const res = await request(app).post('/api/auth/register').type('form')
+      .send('name=Atacante&email=a%40b.com&password=Segura123');
+    expect(res.status).toBe(400);
+  });
+
+  it('una petición de otro sitio sin cabecera Authorization es rechazada', async () => {
+    const res = await request(app).post('/api/donors').set('Origin', 'https://atacante.com')
+      .set('Cookie', 'session=robada').type('form').send('name=X&email=x%40x.com&type=persona');
+    expect(res.status).toBe(401);
+  });
+});

@@ -1,0 +1,2 @@
+10202	IGNORE	(Absence of Anti-CSRF Tokens: la API autentica con JWT en la cabecera Authorization, no con cookies, y solo acepta JSON; un formulario de otro sitio no puede enviar ninguno de los dos)
+100001	IGNORE	(Unexpected Content-Type: la ruta / sirve intencionalmente la interfaz web en HTML; los endpoints /api responden JSON)
